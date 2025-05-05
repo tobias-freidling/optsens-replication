@@ -1,4 +1,4 @@
-library(limosa.beta)
+library(optsens)
 library(ivmodel)
 library(ggplot2)
 library(ggrepel)
@@ -11,28 +11,29 @@ z <- card.data[, "nearc4"]
 x <- card.data[, c("exper", "expersq", "black", "south", "smsa")]
 
 rv <- c(0.01, 0.02, 0.03, 0.04)
-grid_specs <- list(num_x = 300, num_y = 300, num_z = 300)
+grid_specs <- list(N1 = 300, N2 = 300, N5 = 300)
+comparison_ind <- list(black = c(1, 2, 5), south = c(1, 2, 5))
 dfp <- data.frame(matrix(nrow = 0, ncol = 9))
-iv_lines_list <- NULL
+ivl <- NULL
 
 for (i in seq_along(rv)) {
   sa <- sensana(y = y, d = d, indep_x = c("black", "south"),
                 dep_x = c("exper", "expersq", "smsa"), x = x, z = z)
-  sa <- add_bound(sa, "UD", "direct", lb = -0.99, ub = 0.99)
-  sa <- add_bound(sa, "UY", "comparative-d", b = 5, I = "south", J = "black")
-  sa <- add_bound(sa, "ZU", "direct", lb = -rv[i], ub = rv[i])
-  sa <- add_bound(sa, "ZY", "direct", lb = -rv[i], ub = rv[i])
+  sa <- add_bound(sa, arrow = "UD", kind = "direct", lb = -0.99, ub = 0.99)
+  sa <- add_bound(sa, arrow = "UY", kind = "comparative-d", b = 5, I = "south", J = "black")
+  sa <- add_bound(sa, arrow = "ZU", kind = "direct", lb = -rv[i], ub = rv[i])
+  sa <- add_bound(sa, arrow = "ZY", kind = "direct", lb = -rv[i], ub = rv[i])
   
-  data <- r_contours_data(sa, comparison_ind = NULL,
-                          mult_r2 = TRUE, comparison = "comp",
+  data <- r_contours_data(sa, comparison_ind = NULL, comparison = "comp",
                           iv_lines = TRUE, grid_specs = grid_specs,
-                          print_warning = FALSE, eps = 0.001)
+                          eps = 0.001)
+  
   temp <- cbind(data$df_plot, data.frame(p = rep(i, 300^2)))
   dfp <- rbind(dfp, temp)
-  iv_lines_list <- data$iv_lines_list
+  ivl <- data$ivl
 }
 
-saveRDS(list(dfp = dfp, iv_lines_list = iv_lines_list),
+saveRDS(list(dfp = dfp, ivl = ivl),
         "generated-data/r-contours-iv-lines.rds")
 ## plot_list <- readRDS("generated-data/r-contours-iv-lines.rds")
 ## list2env(plot_list, environment())
@@ -50,22 +51,22 @@ pl <- ggplot(subset(dfp, feasible)) +
                 ymin = ymin, ymax = ymax,
                 fill = val, colour = val),
             alpha = 1, na.rm = TRUE) +
-  scale_fill_steps(breaks = make_breaks,
-                   aesthetics = c("fill", "colour"),
-                   name = "lower point of 95%\nconfidence interval")
+  scale_fill_steps(low = "#5A5A5A", high = "#F5F5F5",
+                   breaks = make_breaks,
+                   aesthetics = c("fill", "colour"))
 
-## list2env(plot_list$iv_lines_list, environment())
+## list2env(plot_list$ivl, environment())
 ## c is negative for this dataset
-if (iv_lines_list$c < 0) {
+if (ivl$c < 0) {
   pl <- pl +
-    stat_function(fun = iv_lines_list$fun,
-                  xlim = c(-1, iv_lines_list$fun_inv(1)),
+    stat_function(fun = ivl$fun,
+                  xlim = c(-1, ivl$fun_inv(1)),
                   size = 0.7,
-                  col = "red") +
-    stat_function(fun = iv_lines_list$fun,
-                  xlim = c(iv_lines_list$fun_inv(-1), 1),
+                  col = "black") +
+    stat_function(fun = ivl$fun,
+                  xlim = c(ivl$fun_inv(-1), 1),
                   size = 0.7,
-                  col = "red")
+                  col = "black")
 }
 
 

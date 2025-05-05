@@ -84,6 +84,8 @@ print_coverage <- function(n) {
   }
 }
 
+
+
 print_coverage(200)
 print_coverage(500)
 print_coverage(1000)

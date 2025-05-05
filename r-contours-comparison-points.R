@@ -1,4 +1,4 @@
-library(limosa.beta)
+library(optsens)
 library(ivmodel)
 library(ggplot2)
 library(ggrepel)
@@ -12,25 +12,23 @@ x <- card.data[, c("exper", "expersq", "black", "south", "smsa")]
 
 sa <- sensana(y = y, d = d, indep_x = c("black", "south"),
               dep_x = c("exper", "expersq", "smsa"), x = x, z = z)
-sa <- add_bound(sa, "UD", "direct", lb = -0.75, ub = 0.75)
-sa <- add_bound(sa, "UY", "direct", lb = -0.75, ub = 0.75)
+sa <- add_bound(sa, arrow = "UD", kind = "direct", lb = -0.75, ub = 0.75)
+sa <- add_bound(sa, arrow = "UY", kind = "direct", lb = -0.75, ub = 0.75)
 
 
 comparison_ind <- list(black = c(1, 2, 5), south = c(1, 2, 5))
-grid_specs <- list(num_x = 400, num_y = 400, num_z = 100)
+grid_specs <- list(N1 = 400, N2 = 400, N5 = 400)
 
-data_inf <- r_contours_data(sa, comparison_ind, mult_r2 = TRUE,
-                            comparison = "informal", iv_lines = FALSE,
-                            grid_specs = grid_specs,
-                            print_warning = FALSE, eps = 0.001)
-data_comp <- r_contours_data(sa, comparison_ind, mult_r2 = TRUE,
-                             comparison = "comp", iv_lines = FALSE,
-                             grid_specs = grid_specs,
-                             print_warning = FALSE, eps = 0.001)
-data_comp_d <- r_contours_data(sa, comparison_ind, mult_r2 = TRUE,
-                               comparison = "comp-d", iv_lines = FALSE,
-                               grid_specs = grid_specs,
-                               print_warning = FALSE, eps = 0.001)
+
+data_inf <- r_contours_data(sa, comparison_ind, comparison = "informal",
+                            iv_lines = FALSE, grid_specs = grid_specs,
+                            eps = 0.001)
+data_comp <- r_contours_data(sa, comparison_ind, comparison = "comp",
+                             iv_lines = FALSE, grid_specs = grid_specs,
+                             eps = 0.001)
+data_comp_d <- r_contours_data(sa, comparison_ind, comparison = "comp-d",
+                               iv_lines = FALSE, grid_specs = grid_specs,
+                               eps = 0.001)
 
 saveRDS(list(data_inf = data_inf,
              data_comp = data_comp,
@@ -41,7 +39,7 @@ saveRDS(list(data_inf = data_inf,
 
 
 make_breaks <- function(range, binwidth) {
-  signif(pretty(range, 15), 4)
+  signif(pretty(range, 10), 4)
 }
 type <- rep("inf", 6)
 df_cp_inf <- cbind(data_inf$df_cp, type)
@@ -56,28 +54,28 @@ pl <- ggplot(subset(data_comp$df_plot, feasible)) +
                 ymin = ymin, ymax = ymax,
                 fill = val, colour = val),
             alpha = 1, na.rm = TRUE) +
-  scale_fill_steps2(midpoint = 0,
-                    low = scales::muted("blue"),
-                    high = scales::muted("red"),
-                    breaks = make_breaks,
-                    aesthetics = c("fill", "colour"))
+  scale_fill_steps(low = "#5A5A5A", high = "#F5F5F5",
+                   breaks = make_breaks,
+                   aesthetics = c("fill", "colour"))
 
 pl <- pl +
   geom_point(data = data_comp$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
-             col = "#000000", shape = 16,
+             fill = "darkgray", col = "black",
+             stroke = 0.5, shape = 21,
              show.legend = FALSE, size = 2.5,
-             alpha = 0.7) +
+             alpha = 0.8) +
   geom_point(data = data_comp_d$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
-             col = "#0b5394", shape = 8,
+             col = "black", shape = 8,
              show.legend = FALSE, size = 2.5,
-             alpha = 0.7) +
+             alpha = 0.5) +
   geom_point(data = data_inf$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
-             col = "#009E73", shape = 17,
+             fill = "white", col = "black",
+             stroke = 0.5, shape = 24,
              show.legend = FALSE, size = 2.5,
-             alpha = 0.7) +
+             alpha = 0.5) +
   geom_text_repel(data = data_inf$df_cp,
                   mapping = aes(x = cp_x, y = cp_y,
                                 label = cp_label),
@@ -99,4 +97,4 @@ pl <- pl +
 
 print(pl)
 ggsave("generated-graphics/r-contours-comparison-points.pdf",
-       width = 9.5, height = 6)
+       width = 9, height = 6)

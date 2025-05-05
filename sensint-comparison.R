@@ -1,4 +1,4 @@
-library(limosa.beta)
+library(optsens)
 library(ivmodel)
 library(future)
 plan(multisession, workers = 5)
@@ -20,7 +20,7 @@ estimators <- c("OLS-adj", "TSLS")
 bound_combinations <- c("UD/UY", "UZ/ZY", "UZ/ZY/UD",
                         "UZ/ZY/UY", "UZ/ZY/UD/UY")
 
-grid_specs <- list(num_x = 200, num_y = 200, num_z = 200)
+grid_specs <- list(N1 = 200, N2 = 200, N5 = 200)
 
 df <- data.frame(matrix(ncol = 5, nrow = 0))
 estim <- c(estimators, bound_combinations)
@@ -29,11 +29,12 @@ point <- c(rep(TRUE, 2), rep(FALSE, 5))
 
 ## Point-identified
 sa <- sensana(y = y, d = d, indep_x = c("black", "south"),
-              dep_x = c("exper", "expersq", "smsa"), x = x, z = z, alpha = alpha)
-beta_l <- c(sa$beta_ols, sa$beta_iv)
-beta_u <- c(sa$beta_ols, sa$beta_iv)
-int_l <- c(sa$confint_ols[1], sa$confint_iv[1])
-int_u <- c(sa$confint_ols[2], sa$confint_iv[2])
+              dep_x = c("exper", "expersq", "smsa"),
+              quantile = "normal", x = x, z = z, alpha = alpha)
+beta_l <- c(sa$beta_ols, sa$beta_tsls)
+beta_u <- c(sa$beta_ols, sa$beta_tsls)
+int_l <- c(sa$confint_ols[1], sa$confint_tsls[1])
+int_u <- c(sa$confint_ols[2], sa$confint_tsls[2])
 
 
 ## Partially identified
@@ -47,20 +48,20 @@ res[[i]] %<-% {
                   dep_x = c("exper", "expersq", "smsa"), x = x, z = z)
     
     if (bc %in% c("UZ/ZY", "UZ/ZY/UY")) {
-      sa <- add_bound(sa, "UD", "direct", lb = -0.98, ub = 0.98)
+      sa <- add_bound(sa, arrow = "UD", kind = "direct", lb = -0.98, ub = 0.98)
     }
     
     if (bc != "UD/UY") {
-      sa <- add_bound(sa, "ZU", "comparative", b = 0.5, J = "black")
-      sa <- add_bound(sa, "ZY", "comparative", b = 0.1, J = "black")
+      sa <- add_bound(sa, arrow = "ZU", kind = "comparative", b = 0.5, J = "black")
+      sa <- add_bound(sa, arrow = "ZY", kind = "comparative", b = 0.1, J = "black")
     }
     
     if (bc %in% c("UD/UY", "UZ/ZY/UY", "UZ/ZY/UD/UY")) {
-      sa <- add_bound(sa, "UY", "comparative-d", b = 5, I = "south", J = "black")
+      sa <- add_bound(sa, arrow = "UY", kind = "comparative-d", b = 5, I = "south", J = "black")
     }
     
     if (bc %in% c("UD/UY", "UZ/ZY/UD", "UZ/ZY/UD/UY")) {#
-      sa <- add_bound(sa, "UD", "comparative", b = 4, I = "south", J = "black")
+      sa <- add_bound(sa, arrow = "UD", kind = "comparative", b = 4, I = "south", J = "black")
     }
     
     pir_est <- pir(sa, grid_specs = grid_specs)
@@ -69,6 +70,7 @@ res[[i]] %<-% {
     
     res[[i]] <- c(pir_est[1], pir_est[2],
                   sensint_obj$sensint[2, 1], sensint_obj$sensint[2, 2])
+    
   } %seed% TRUE
 }
 
@@ -93,13 +95,16 @@ names <- c("OLS", "TSLS",
 df$est <- factor(df$est, levels = estim)
 
 pl <- ggplot(data = df, aes(x = est)) +
-  geom_errorbar(aes(ymin = int_l, ymax = int_u), width = 0.35,#0.4
-                size = 1) + #1.3
+  geom_errorbar(aes(ymin = int_l, ymax = int_u), width = 0.2,#0.4
+                linewidth = 1, col = "darkgray") + #1.3
   geom_point(data = subset(df, point), aes(y = beta_l),
-             size = 3, col = "#619CFF") + ##4
-  geom_errorbar(data = subset(df, !point),
-                aes(ymin = beta_l, ymax = beta_u), width = 0.2,
-                col = "#619CFF", size = 1) + ## 0.25, 1.3
+             size = 4, col = "black") + ##4
+  geom_linerange(data = subset(df, !point),
+                 aes(ymin = beta_l, ymax = beta_u),
+                 col = "black", linewidth = 4) +
+  ## geom_errorbar(data = subset(df, !point),
+  ##              aes(ymin = beta_l, ymax = beta_u), width = 0.2,
+  ##              col = "#619CFF", size = 1) + ## 0.25, 1.3
   scale_x_discrete(labels = names) +
   scale_y_continuous() +
   theme_bw() +

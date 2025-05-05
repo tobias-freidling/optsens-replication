@@ -8,7 +8,7 @@ for (n in sample_sizes) {
   name <- paste0("generated-data/sim-reg-data-", n, ".rds")
   res_temp <- readRDS(file = name)
   res <- do.call(rbind, lapply(res_temp, function(l) l[[1]]))
-  boot_mat <- do.call(rbind, lapply(res_temp, function(l) l$boot_obj$t))
+  boot_mat <- do.call(rbind, lapply(res_temp, function(l) l$boot_sample))
   N <- dim(res)[1]
   temp_df <- data.frame(x = c(res[,24], res[,25],
                               boot_mat[,1], boot_mat[,2]),
@@ -26,14 +26,22 @@ for (n in sample_sizes) {
 ##############
 ## Density plot: bootstrap vs. real distribution
 ##############
-g1 <- ggplot(df, aes(x = x, color = label)) +
+g1 <- ggplot(df, aes(x = x, linetype = label)) + ## color = label
   geom_vline(xintercept = 1, linetype = "dashed",
              color = "gray") +
   geom_vline(xintercept = (3 + sqrt(3)) / 2,
              linetype = "dashed",
              color = "gray") +
-  geom_density(size = 0.7) +
-  xlim(-0.5, 3.5) +
+  geom_line(aes(color = label), stat = "density", size = 0.7) +
+  scale_linetype_manual(values = c("PIR lower" = "solid",
+                                   "PIR lower - Boot" = "solid",
+                                   "PIR upper" = "31",
+                                   "PIR upper - Boot" = "31")) +
+  scale_color_manual(values = c("PIR lower" = "black",
+                                "PIR lower - Boot" = "darkgray",
+                                "PIR upper" = "black",
+                                "PIR upper - Boot" = "darkgray")) +
+  xlim(0, 3.5) +
   facet_wrap(~n,
              labeller = function(s) label_both(s, sep = " = ")) +
   theme_bw() +
@@ -44,6 +52,7 @@ g1 <- ggplot(df, aes(x = x, color = label)) +
         legend.title = element_blank(),
         legend.text = element_text(size = 11),
         legend.key.size = unit(1.0, 'cm'))
+
 print(g1)
 ggsave("generated-graphics/simulation-reg-dist.pdf")
 

@@ -1,4 +1,4 @@
-library(limosa.beta)
+library(optsens)
 library(ivmodel)
 library(ggplot2)
 library(ggrepel)
@@ -13,18 +13,18 @@ x <- card.data[, c("exper", "expersq", "black", "south", "smsa")]
 
 sa <- sensana(y = y, d = d, indep_x = c("black", "south"),
               dep_x = c("exper", "expersq", "smsa"), x = x, z = z)
-sa <- add_bound(sa, "UD", "comparative", b = 4,
+sa <- add_bound(sa, arrow = "UD", kind = "comparative", b = 4,
                 I = "south", J = "black", name = "bud")
-sa <- add_bound(sa, "UY", "comparative-d", b = 5,
+sa <- add_bound(sa, arrow = "UY", kind = "comparative-d", b = 5,
                 I = "south", J = "black", name = "buy")
 
 
 data <- b_contours_data(sa, pir_lower = TRUE,
                         bound1 = "bud", range1 = c(0.1, 12),
                         bound2 = "buy", range2 = c(0.1, 15),
-                        grid_specs_b = list(num1 = 30, num2 = 30),
-                        grid_specs = list(num_x = 200, num_y = 200, num_z = 200),
-                        print_warning = FALSE, eps = 0.001)
+                        grid_specs_b = list(N1b = 30, N2b = 30),
+                        grid_specs = list(N1 = 200, N2 = 200, N5 = 200),
+                        eps = 0.001)
 
 saveRDS(data, file = "generated-data/b-contours-b1b2.rds")
 ## data <- readRDS("generated-data/b-contours-b1b2.rds")
@@ -39,24 +39,22 @@ make_breaks_ex <- function(range, binwidth) {
   b[b != 0]
 }
 
-pl <- ggplot(data, aes(x, y)) +
+pl <- ggplot(data, aes(x, y, na.rm = TRUE)) +
   geom_contour_fill(aes(z = z, fill = after_stat(level)),
                     breaks = make_breaks,
-                    show.legend = FALSE,
-                    na.rm = TRUE) +
+                    show.legend = FALSE) +
   geom_contour2(aes(z = z, label = after_stat(level)),
                 breaks = make_breaks_ex,
                 col = "black",
                 label_size = 4,
-                size = 0.25,
-                na.rm = TRUE) +
+                size = 0.25) +
   geom_contour2(aes(z = z, label = after_stat(level)),
                 breaks = 0,
                 size = 1.25,
                 label_size = 4,
-                col = "black",
-                na.rm = TRUE) +
-  scale_fill_divergent_discretised(midpoint = 0) +
+                col = "black") +
+  scale_fill_discretised(low = "#5A5A5A", high = "#F5F5F5") +
+  ## scale_fill_divergent_discretised(midpoint = 0) +
   geom_point(data = data.frame(x = 4, y = 5),
              size = 2.5,
              mapping = aes(x, y), col = "black") +
