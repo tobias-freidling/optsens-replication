@@ -34,8 +34,8 @@ saveRDS(list(data_inf = data_inf,
              data_comp = data_comp,
              data_comp_d = data_comp_d),
         "generated-data/r-contours-comparison-points.rds")
-## data_list <- readRDS("generated-data/r-contours-comparison-points.rds")
-## list2env(data_list, environment())
+data_list <- readRDS("generated-data/r-contours-comparison-points.rds")
+list2env(data_list, environment())
 
 
 make_breaks <- function(range, binwidth) {
@@ -54,32 +54,32 @@ pl <- ggplot(subset(data_comp$df_plot, feasible)) +
                 ymin = ymin, ymax = ymax,
                 fill = val, colour = val),
             alpha = 1, na.rm = TRUE) +
-  scale_fill_steps(low = "#5A5A5A", high = "#F5F5F5",
+  scale_fill_steps(low = "#0072B2", high = "#F0E442",##low = "#5A5A5A", high = "#F5F5F5",
                    breaks = make_breaks,
                    aesthetics = c("fill", "colour"))
 
 pl <- pl +
   geom_point(data = data_comp$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
-             fill = "darkgray", col = "black",
+             fill = "#E69F00", col = "black",
              stroke = 0.5, shape = 21,
-             show.legend = FALSE, size = 2.5,
+             show.legend = FALSE, size = 3,
              alpha = 0.8) +
   geom_point(data = data_comp_d$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
              col = "black", shape = 8,
-             show.legend = FALSE, size = 2.5,
+             show.legend = FALSE, size = 3,
              alpha = 0.5) +
   geom_point(data = data_inf$df_cp,
              mapping = aes(x = cp_x, y = cp_y),
-             fill = "white", col = "black",
+             fill = "#009E73", col = "black",
              stroke = 0.5, shape = 24,
-             show.legend = FALSE, size = 2.5,
-             alpha = 0.5) +
+             show.legend = FALSE, size = 3,
+             alpha = 0.6) +
   geom_text_repel(data = data_inf$df_cp,
                   mapping = aes(x = cp_x, y = cp_y,
                                 label = cp_label),
-                  col = "black", size = 4)
+                  col = "black", size = 5)
 
 xlab <- expression("R"["D~U|X,Z"])
 ylab <- expression("R"["Y~U|X,Z,D"])
@@ -88,10 +88,10 @@ pl <- pl +
   labs(x = xlab, y = ylab) +
   theme_bw() +
   theme(plot.title = element_blank(),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18),
-        title = element_text(size = 14),
-        legend.text = element_text(size = 13),
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        title = element_text(size = 20),
+        legend.text = element_text(size = 20),
         legend.key.size = unit(1.8, 'cm'),
         legend.title = element_blank())
 

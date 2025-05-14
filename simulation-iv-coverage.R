@@ -64,6 +64,6 @@ for (i in 1:11) {
   cat(paste(names[i], ":\n"))
   
   lengths <- 1 - res[res[, 2*i-1] <= 1, 2*i-1]
-  cat(paste("Mean: ", mean(lengths), "\n"))
-  cat(paste("Median: ", median(lengths), "\n\n"))
+  cat(paste("Mean: ", round(mean(lengths), digits = 3), "\n"))
+  cat(paste("Median: ", round(median(lengths), digits = 3), "\n\n"))
 }

@@ -27,7 +27,7 @@ data <- b_contours_data(sa, pir_lower = TRUE,
                         eps = 0.001)
 
 saveRDS(data, file = "generated-data/b-contours-b1b2.rds")
-## data <- readRDS("generated-data/b-contours-b1b2.rds")
+data <- readRDS("generated-data/b-contours-b1b2.rds")
 
 
 text_point <- paste0("(", 4, ", ", 5, ")")
@@ -46,24 +46,25 @@ pl <- ggplot(data, aes(x, y, na.rm = TRUE)) +
   geom_contour2(aes(z = z, label = after_stat(level)),
                 breaks = make_breaks_ex,
                 col = "black",
-                label_size = 4,
+                label_size = 5,
                 size = 0.25) +
   geom_contour2(aes(z = z, label = after_stat(level)),
                 breaks = 0,
                 size = 1.25,
-                label_size = 4,
+                label_size = 7,
                 col = "black") +
-  scale_fill_discretised(low = "#5A5A5A", high = "#F5F5F5") +
+  ##scale_fill_discretised(low = "#5A5A5A", high = "#F5F5F5") +
   ## scale_fill_divergent_discretised(midpoint = 0) +
+  scale_fill_discretised(low = "#0072B2", high = "#F0E442") +
   geom_point(data = data.frame(x = 4, y = 5),
-             size = 2.5,
+             size = 3,
              mapping = aes(x, y), col = "black") +
   geom_text_repel(data = data.frame(x = 4,
                                     y = 5,
                                     label = text_point),
                   mapping = aes(x, y, label = label),
                   col = "black",
-                  size = 4,
+                  size = 6,
                   xlim = c(0, 13),
                   ylim = c(0, 15)) +
   labs(x = expression("b"["UD"]),
@@ -71,9 +72,9 @@ pl <- ggplot(data, aes(x, y, na.rm = TRUE)) +
   scale_x_continuous(breaks = seq(0, 12, by = 2)) +
   theme_bw() +
   theme(plot.title = element_blank(),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18),
-        title = element_text(size = 14))
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        title = element_text(size = 20))
 
 print(pl)
 ggsave("generated-graphics/b-contours-b1b2.pdf", width = 7, height = 6)

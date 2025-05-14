@@ -35,8 +35,8 @@ for (i in seq_along(rv)) {
 
 saveRDS(list(dfp = dfp, ivl = ivl),
         "generated-data/r-contours-iv-lines.rds")
-## plot_list <- readRDS("generated-data/r-contours-iv-lines.rds")
-## list2env(plot_list, environment())
+plot_list <- readRDS("generated-data/r-contours-iv-lines.rds")
+list2env(plot_list, environment())
 
 
 xlab <- expression("R"["D~U|X,Z"])
@@ -51,7 +51,7 @@ pl <- ggplot(subset(dfp, feasible)) +
                 ymin = ymin, ymax = ymax,
                 fill = val, colour = val),
             alpha = 1, na.rm = TRUE) +
-  scale_fill_steps(low = "#5A5A5A", high = "#F5F5F5",
+  scale_fill_steps(##low = "#5A5A5A", high = "#F5F5F5",
                    breaks = make_breaks,
                    aesthetics = c("fill", "colour"))
 
@@ -62,11 +62,11 @@ if (ivl$c < 0) {
     stat_function(fun = ivl$fun,
                   xlim = c(-1, ivl$fun_inv(1)),
                   size = 0.7,
-                  col = "black") +
+                  col = "red") +
     stat_function(fun = ivl$fun,
                   xlim = c(ivl$fun_inv(-1), 1),
                   size = 0.7,
-                  col = "black")
+                  col = "red")
 }
 
 
@@ -93,15 +93,15 @@ pl <- pl +
   xlim(-1, 1) +
   ylim(-0.6, 1) +
   theme_bw() +
-  theme(strip.text.x = element_text(size = 11),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18),
-        title = element_text(size = 14),
+  theme(strip.text.x = element_text(size = 12),
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        title = element_text(size = 20),
         legend.title = element_blank(),
-        legend.text = element_text(size = 14),
+        legend.text = element_text(size = 20),
         legend.key.size = unit(1.8, 'cm'),
         panel.spacing = unit(2, "lines"))
 
 print(pl)
 ggsave("generated-graphics/r-contours-iv-lines.pdf",
-       width = 8, height = 6)
+       width = 10, height = 7.5)

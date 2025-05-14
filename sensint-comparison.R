@@ -96,12 +96,12 @@ df$est <- factor(df$est, levels = estim)
 
 pl <- ggplot(data = df, aes(x = est)) +
   geom_errorbar(aes(ymin = int_l, ymax = int_u), width = 0.2,#0.4
-                linewidth = 1, col = "darkgray") + #1.3
+                linewidth = 1, col = "#56B4E9") + #1.3 ## darkgray
   geom_point(data = subset(df, point), aes(y = beta_l),
-             size = 4, col = "black") + ##4
+             size = 4, col = "#0072B2") + ##4
   geom_linerange(data = subset(df, !point),
                  aes(ymin = beta_l, ymax = beta_u),
-                 col = "black", linewidth = 4) +
+                 col = "#0072B2", linewidth = 4) +
   ## geom_errorbar(data = subset(df, !point),
   ##              aes(ymin = beta_l, ymax = beta_u), width = 0.2,
   ##              col = "#619CFF", size = 1) + ## 0.25, 1.3
@@ -109,8 +109,8 @@ pl <- ggplot(data = df, aes(x = est)) +
   scale_y_continuous() +
   theme_bw() +
   theme(axis.title = element_blank(),
-        axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 16, angle = 45,
+        axis.text.y = element_text(size = 20),
+        axis.text.x = element_text(size = 20, angle = 45,
                                    hjust = 1))
 print(pl)
 ggsave("generated-graphics/sensint-comparison.pdf")

@@ -37,20 +37,20 @@ g1 <- ggplot(df, aes(x = x, linetype = label)) + ## color = label
                                    "PIR lower - Boot" = "solid",
                                    "PIR upper" = "31",
                                    "PIR upper - Boot" = "31")) +
-  scale_color_manual(values = c("PIR lower" = "black",
-                                "PIR lower - Boot" = "darkgray",
-                                "PIR upper" = "black",
-                                "PIR upper - Boot" = "darkgray")) +
+  scale_color_manual(values = c("PIR lower" = "#56B4E9",
+                                "PIR lower - Boot" = "#E69F00",
+                                "PIR upper" = "#56B4E9",
+                                "PIR upper - Boot" = "#E69F00")) +
   xlim(0, 3.5) +
   facet_wrap(~n,
              labeller = function(s) label_both(s, sep = " = ")) +
   theme_bw() +
-  theme(strip.text.x = element_text(size = 11),
-        axis.text = element_text(size = 14),
+  theme(strip.text.x = element_text(size = 16),
+        axis.text = element_text(size = 20),
         axis.title = element_blank(),
-        title = element_text(size = 14),
+        title = element_text(size = 20),
         legend.title = element_blank(),
-        legend.text = element_text(size = 11),
+        legend.text = element_text(size = 20),
         legend.key.size = unit(1.0, 'cm'))
 
 print(g1)

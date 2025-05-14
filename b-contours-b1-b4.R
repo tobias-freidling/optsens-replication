@@ -29,7 +29,7 @@ data <- b_contours_data(sa, pir_lower = TRUE,
                         eps = 0.001)
 
 saveRDS(data, file = "generated-data/b-contours-b1-b4.rds")
-## data <- readRDS("generated-data/b-contours-b1-b4.rds")
+data <- readRDS("generated-data/b-contours-b1-b4.rds")
 
 
 text_point <- paste0("(", 4, ", ", 0.1, ")")
@@ -48,27 +48,28 @@ pl <- ggplot(data, aes(x, y, na.rm=TRUE)) +
   geom_contour2(aes(z = z, label = after_stat(level)),
                 breaks = make_breaks_ex,
                 col = "black",
-                label_size = 4,
+                label_size = 5,
                 size = 0.25) +
-  scale_fill_discretised(low = "#5A5A5A", high = "#F5F5F5") +
+  ##scale_fill_discretised(low = "#5A5A5A", high = "#F5F5F5") +
   ## scale_fill_divergent_discretised(midpoint = 0) +
+  scale_fill_discretised(low = "#0072B2", high = "#F0E442") +
   geom_point(data = data.frame(x = 4, y = 0.1),
-             size = 2.5,
+             size = 3,
              mapping = aes(x, y), col = "black") +
   geom_text_repel(data = data.frame(x = 4,
                                     y = 0.1,
                                     label = text_point),
                   mapping = aes(x, y, label = label),
                   col = "black",
-                  size = 4) +
+                  size = 6) +
   labs(x = expression("b"["UD"]),
        y = expression("b"["ZY"])) +
   scale_y_continuous(breaks = seq(0, 0.12, by = 0.02)) +
   theme_bw() +
   theme(plot.title = element_blank(),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18),
-        title = element_text(size = 14))
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        title = element_text(size = 20))
 
 print(pl)
 ggsave("generated-graphics/b-contours-b1-b4.pdf", width = 7, height = 6)

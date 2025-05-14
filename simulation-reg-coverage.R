@@ -1,5 +1,5 @@
 
-print_coverage <- function(n) {
+print_coverage <- function(n, digits = 3) {
   
   name <- paste0("generated-data/sim-reg-data-", n, ".rds")
   res_temp <- readRDS(file = name)
@@ -79,8 +79,8 @@ print_coverage <- function(n) {
     cat(paste(names[i], ":\n"))
     
     lengths <- 1 - res[res[, 2*i-1] <= 1, 2*i-1]
-    cat(paste("Mean: ", mean(lengths), "\n"))
-    cat(paste("Median: ", median(lengths), "\n\n"))
+    cat(paste("Mean: ", round(mean(lengths), digits = digits), "\n"))
+    cat(paste("Median: ", round(median(lengths), digits = digits), "\n\n"))
   }
 }
 
